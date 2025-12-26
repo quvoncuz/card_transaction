@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @Getter
 @Setter
 public class UserEntity {
@@ -18,5 +18,8 @@ public class UserEntity {
     @Column(name = "roles", nullable = false)
     @Enumerated(EnumType.STRING)
     private Role roles;
+
+    @Column
+    private String password;
 
 }

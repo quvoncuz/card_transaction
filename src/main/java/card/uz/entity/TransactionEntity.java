@@ -2,6 +2,7 @@ package card.uz.entity;
 
 import card.uz.enums.Currency;
 import card.uz.enums.Purpose;
+import card.uz.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,6 +39,9 @@ public class    TransactionEntity {
 
     @Column
     private Purpose purpose;
+
+    @Column(name = "transaction_type")
+    private TransactionType transactionType;
 
     @Column(name = "exchange_rate")
     private Long exchangeRate;

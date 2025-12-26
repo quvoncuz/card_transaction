@@ -1,8 +1,6 @@
 package card.uz.config;
 
 import card.uz.enums.Role;
-import dasturlash.uz.enums.Role;
-import dasturlash.uz.enums.Status;
 import lombok.Getter;
 import lombok.Setter;
 import org.jspecify.annotations.Nullable;

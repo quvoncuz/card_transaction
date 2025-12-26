@@ -33,6 +33,7 @@ public class SpringConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         final DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(customUserDetailsService);
+        authenticationProvider.setPasswordEncoder(bCryptPasswordEncoder());
         return authenticationProvider;
     }
 
@@ -71,5 +72,10 @@ public class SpringConfig {
     @Bean
     public ObjectMapper objectMapper(){
         return new ObjectMapper();
+    }
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder(){
+        return new BCryptPasswordEncoder();
     }
 }
