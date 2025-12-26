@@ -41,6 +41,8 @@ public class SpringConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> {
             authorizationManagerRequestMatcherRegistry
+                    .requestMatchers("/api/v1/users/**").permitAll()
+//                    .requestMatchers("/api/v1/cards/**").permitAll()
                     .anyRequest()
                     .authenticated();
         });

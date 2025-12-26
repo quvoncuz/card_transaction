@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class IdempotencyKeyEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+//    @GeneratedValue(strategy = GenerationType.UUID)
     private String key;
 
     @Column

@@ -38,10 +38,10 @@ public class JwtUtil {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        Long id = (Long) claims.get("id");
+        Number id =(Number) claims.get("id");
         String role = (String) claims.get("role");
 
-        return new JwtDTO(id, role);
+        return new JwtDTO(id.longValue(), role);
     }
 
     private static SecretKey getSignInKey() {

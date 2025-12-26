@@ -27,10 +27,13 @@ public class CardService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private IdempotencyService idempotencyService;
+
     public ResponseEntity<?> createCard(String indempotencyKey, CardRequestDTO requestDTO) {
         Optional<IdempotencyKeyEntity> existingKey = idempotencyKeyRepository.findById(indempotencyKey);
 
-        String requestHash = IdempotencyService.calculateHash(requestDTO.toString());
+        String requestHash = idempotencyService.calculateHash(requestDTO.toString());
 
         if (existingKey.isPresent()) {
             IdempotencyKeyEntity idempotencyKeyEntity = existingKey.get();
@@ -58,7 +61,7 @@ public class CardService {
         IdempotencyKeyEntity idempotencyKeyEntity = new IdempotencyKeyEntity();
         idempotencyKeyEntity.setKey(indempotencyKey);
         idempotencyKeyEntity.setEndpoint("/api/v1/cards");
-        idempotencyKeyEntity.setRequestHash(IdempotencyService.calculateHash(requestDTO.toString()));
+        idempotencyKeyEntity.setRequestHash(idempotencyService.calculateHash(requestDTO.toString()));
         idempotencyKeyEntity.setResponseStatus(201);
         idempotencyKeyEntity.setResponseBody(objectMapper.writeValueAsString(card));
         idempotencyKeyEntity.setExpirationDate(LocalDateTime.now().plusHours(12));

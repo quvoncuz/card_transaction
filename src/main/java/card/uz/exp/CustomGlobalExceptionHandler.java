@@ -1,5 +1,6 @@
 package card.uz.exp;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import java.util.*;
 
+@Slf4j
 @ControllerAdvice
 public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
@@ -30,11 +32,13 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
 
     @ExceptionHandler(AppException.class)
     public ResponseEntity<String> handleAppBadException(AppException ex) {
+        log.warn("Application exception occurred: {}", ex.getMessage());
         return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
+        log.error("Unhandled exception occurred: {}", ex.getMessage());
         return ResponseEntity.internalServerError().body(ex.getMessage());
     }
 }

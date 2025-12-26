@@ -44,6 +44,9 @@ public class TransactionService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private IdempotencyService idempotencyService;
+
     public PageImpl<TransactionDTO> getTransactionHistory(FilterDTO dto, String cardId, int page, int size, String transactionType) {
         PageRequest pageRequest = PageRequest.of(page, size);
         FilterResultDTO<Object[]> filter = customFilterRepository.filter(dto, cardId, page, size, TransactionType.valueOf(transactionType));
@@ -67,7 +70,7 @@ public class TransactionService {
     public ResponseEntity<?> withdraw(WithdrawFundDTO dto, String cardId, String idempotencyKey) {
         CardEntity card = cardRepository.findById(cardId).orElseThrow(() -> new AppException("Card Not FOund"));
 
-        String requestHash = IdempotencyService.calculateHash(dto.toString()+ " " + cardId);
+        String requestHash = idempotencyService.calculateHash(dto.toString()+ " " + cardId);
 
         Optional<IdempotencyKeyEntity> existingKey = idempotencyKeyRepository.findById(idempotencyKey);
         if (existingKey.isPresent()) {
@@ -92,6 +95,8 @@ public class TransactionService {
                 currency = new BigDecimal(CbuCurrencyService.getByCurrencyCode("UZS").getRate()).longValue();
                 balance = card.getBalance() - dto.getAmount()*currency;
             }
+        } else {
+            balance = card.getBalance() - dto.getAmount();
         }
 
         if (balance < 0) {
@@ -116,7 +121,7 @@ public class TransactionService {
         idempotencyKeyEntity.setResponseStatus(200);
         idempotencyKeyEntity.setExpirationDate(LocalDateTime.now().plusHours(12));
         idempotencyKeyEntity.setEndpoint("/api/v1/cards/" + cardId + "/debit");
-        idempotencyKeyEntity.setRequestHash(IdempotencyService.calculateHash(dto.toString()+ " " + cardId));
+        idempotencyKeyEntity.setRequestHash(idempotencyService.calculateHash(dto.toString()+ " " + cardId));
         idempotencyKeyEntity.setResponseBody(objectMapper.writeValueAsString(transaction));
         idempotencyKeyRepository.save(idempotencyKeyEntity);
 
@@ -128,7 +133,7 @@ public class TransactionService {
         CardEntity card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new AppException("Card Not Found"));
 
-        String requestHash = IdempotencyService.calculateHash(dto.toString() + " " + cardId);
+        String requestHash = idempotencyService.calculateHash(dto.toString() + " " + cardId);
 
         Optional<IdempotencyKeyEntity> existingKey = idempotencyKeyRepository.findById(idempotencyKey);
         if (existingKey.isPresent()){
@@ -144,7 +149,6 @@ public class TransactionService {
             throw new AppException("Card Not Active");
         }
         Long currency = null;
-        Long balance = null;
         if (!card.getCurrency().equals(dto.getCurrency())){
             if (card.getCurrency().equals(Currency.USD)){
                 currency = new BigDecimal(CbuCurrencyService.getByCurrencyCode("USD").getRate()).longValue();
@@ -153,8 +157,9 @@ public class TransactionService {
                 currency = new BigDecimal(CbuCurrencyService.getByCurrencyCode("UZS").getRate()).longValue();
                 card.setBalance(card.getBalance() + dto.getAmount()*currency);
             }
+        } else {
+            card.setBalance(card.getBalance() + dto.getAmount());
         }
-
         cardRepository.save(card);
         TransactionEntity transaction = new TransactionEntity();
         transaction.setExternalId(dto.getExternalId());
@@ -172,7 +177,7 @@ public class TransactionService {
         idempotencyKeyEntity.setResponseStatus(200);
         idempotencyKeyEntity.setExpirationDate(LocalDateTime.now().plusHours(12));
         idempotencyKeyEntity.setEndpoint("/api/v1/cards/" + cardId + "/credit");
-        idempotencyKeyEntity.setRequestHash(IdempotencyService.calculateHash(dto.toString()+ " " + cardId));
+        idempotencyKeyEntity.setRequestHash(idempotencyService.calculateHash(dto.toString()+ " " + cardId));
         idempotencyKeyEntity.setResponseBody(objectMapper.writeValueAsString(transaction));
         idempotencyKeyRepository.save(idempotencyKeyEntity);
 

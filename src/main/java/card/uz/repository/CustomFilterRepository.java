@@ -27,7 +27,7 @@ public class CustomFilterRepository {
                 t.amount,
                 t.currency,
                 t.exchangeRate,
-                t.purpose,
+                t.purpose
                 from TransactionEntity as t
                 """);
         StringBuilder countQuery = new StringBuilder("""

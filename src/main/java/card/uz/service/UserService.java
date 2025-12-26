@@ -21,7 +21,7 @@ public class UserService {
     public UserDTO login(Long userId, String password) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new AppException("User not found"));
 
-        if (bCryptPasswordEncoder.matches(password, user.getPassword())) {
+        if (!bCryptPasswordEncoder.matches(password, user.getPassword())) {
             throw new AppException("Invalid credentials");
         }
         UserDTO userDTO = new UserDTO();
